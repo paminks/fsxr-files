@@ -52,6 +52,7 @@ public class CarController : MonoBehaviour
         int gear1 = Convert.ToInt32(gearText);
         gear1 = gear;
         gearText.text = "" + gear1.ToString();
+	//yeah SO EFFICIENT
         if (true)
         {
             if (speed < 0)
@@ -137,6 +138,7 @@ public class CarController : MonoBehaviour
         killOrtaVelocity();
         ApplySteering();
         checkClassification();
+//uncomment these for androd builds
         //#if UNITY_ANDROID
         //StartCoroutine(SmoothBrkAND());
         //androidControls.SetActive(true);
@@ -161,6 +163,7 @@ public class CarController : MonoBehaviour
     public float breakInput;
     public CarChooseUI csu;
     public SpriteRenderer spriteRenderer;
+//please dont sue me ferrari-mclaren-astonMartin-mercedes :D
     public Sprite ferrariF13;
     public Sprite mclarenMp22;
     public Sprite RenaultR29;
@@ -169,7 +172,7 @@ public class CarController : MonoBehaviour
     public int orderNum;
 
     #endregion
-
+	//for choosing the car
     public void changeSprite()
     {
         if (orderNum == 2)
@@ -199,7 +202,7 @@ public class CarController : MonoBehaviour
 
         }
     }
-
+	//the engine code 
     public void ApplyEngineForce()
     {
         velocitysUp = Vector2.Dot(transform.up, rb.velocity);
@@ -227,7 +230,7 @@ public class CarController : MonoBehaviour
 
     public int maxAccelFactor = 110;
 
-
+	//smooth breaking for pc
     public IEnumerator SmoothBrk()
     {
         if (accelerationInput < 0)
@@ -263,7 +266,7 @@ public class CarController : MonoBehaviour
             yield break;
         }
     }
-
+	//for android smooth breaking
     public IEnumerator SmoothBrkAND()
     {
         if (breakInput > 0)
@@ -290,7 +293,7 @@ public class CarController : MonoBehaviour
             yield break;
         }
     }
-
+	//some basic steering but feels good
     public void ApplySteering()
     {
         float minSpeedBeforeAllowingTurn = (rb.velocity.magnitude / 8);
@@ -299,7 +302,7 @@ public class CarController : MonoBehaviour
         rotationAngle = -steeringInput * turnFactor * minSpeedBeforeAllowingTurn;
         rb.MoveRotation(rb.rotation + rotationAngle);
     }
-
+//this is for the little drift effect
     public void killOrtaVelocity()
     {
         Vector2 forwardVelocity = transform.up * Vector2.Dot(rb.velocity, transform.up);
@@ -329,19 +332,19 @@ public class CarController : MonoBehaviour
     public bool valid;
     public float playerCheckpoints;
     public void OnTriggerEnter2D(Collider2D other)
-    {
+    {	//checks if the player cuts the road or not
         if (other.CompareTag("MapValidator"))
         {
             mapPoints++;
             lapvalidatorDevMenu.text = "passed " + mapPoints + " validator points";
         }
-
+	//this is for calculating the lap time
         if (other.CompareTag("Checkpoint"))
         {
             playerCheckpoints++;
 
         }
-
+	//yeah as you can see if the map points are not enough its simply not a valid lap 
         if (other.CompareTag("FinishLine"))
         {
 
@@ -373,6 +376,7 @@ public class CarController : MonoBehaviour
 
     public TextMeshProUGUI classificationText;
     public int playerPosition;
+	//this is NOT the most efficient way of checking classification PLEASE HELP
     public void checkClassification()
     {
         if (AICar1.AIcheckpoints > playerCheckpoints)
@@ -392,9 +396,11 @@ public class CarController : MonoBehaviour
 
     public int lapsToPlay;
     public TextMeshProUGUI lapText;
+//everything with WO is related to win or loss text
     public TextMeshProUGUI wonOrLossText;
     public GameObject WOltGameObject;
     public GameObject woltButton;
+    //decides if the player or AI won 
     public void finishRace()
     {
         if (completedLaps == lapsToPlay && playerPosition ==1 && orderNum >0)
@@ -416,7 +422,7 @@ public class CarController : MonoBehaviour
 
     }
     public TextMeshProUGUI bestLap;
-
+	//finisihes the lap 
     public void OnTriggerExit2D(Collider2D other)
     {
         if (other.CompareTag("FinishLine"))
@@ -441,7 +447,7 @@ public class CarController : MonoBehaviour
     }
 
     public float bestLaptime;
-
+	//lap time UI and math
     public void LapTime()
     {
         lapTime += Time.deltaTime;
@@ -453,7 +459,7 @@ public class CarController : MonoBehaviour
     public TextMeshProUGUI ersEnabledText;
     public float ersTime;
     public bool ersEnabled;
-
+	//updates UI of the ERS, this can be done in the other function but seperating them is always helpful
     public void updateErsText()
     {
         if (ersEnabled)
@@ -478,6 +484,7 @@ public class CarController : MonoBehaviour
             ersPercentage.text = "%0";
         }
     }
+    //initializes ERS 
     public void enableERS()
     {
         if (ersEnabled == false && ersTime <= 10f)
@@ -514,7 +521,7 @@ public class CarController : MonoBehaviour
         }
 
     }
-
+	//eats ERS
     public IEnumerator startErsCount()
     {
         while(ersTime > 0)
@@ -531,162 +538,4 @@ public class CarController : MonoBehaviour
 
 
     
-}
-
-
-public class GodotCode
-{
-
-
-	[Export] public int Speed { get; set; } = 400;
-
-	[Export] public float RotationSpeed { get; set; } = 1.5f;
-	// I defined everything but I dont know if i'll use it
-	#region Defines
-	private RigidBody2D rb;
-	private CharacterBody2D cb;
-	private float _rotationDirection;
-	public float velocitysUp;
-	public float accelRatio;
-	public float rotationAngle;
-	public float accelerationFactor = 30f;
-	public float turnFactor = 3.5f;
-	public float driftFactor = 0.95f;
-	public float accelInput;
-	public float steerInput;
-	public float maxSpeed = 100;
-	public float minSpeed = 0;
-	public float breakInput;
-	public double speed;
-	public int maxAccelFactor;
-	#endregion
-	public override void _Ready() // void start
-	{
-		rb = GetNode<RigidBody2D>("RigidBody2D");
-		cb = GetNode<CharacterBody2D>(".");
-	}
-	public void GetInput()
-	{
-		Velocity = Transform.X * Input.GetAxis("S", "W") * Speed;
-		_rotationDirection = Input.GetAxis("A", "D");
-
-	}
-	public override void _PhysicsProcess(double delta) //fixed update
-	{
-
-		if (IsMultiplayerAuthority() == true)
-		{
-			setInputVector();
-			ApplySteering();
-			ApplyEngineForce(1200f);
-			//killOrtaVelocity();
-			GD.Print(speed);
-			SmoothBrake();
-
-		}
-		MoveAndSlide();
-
-	}
-
-	public void _Process()
-	{
-		speed = velocitysUp * 3.3;
-	}
-	public override void _EnterTree() // dont know what it is
-	{
-		SetMultiplayerAuthority(int.Parse(Name));
-	}
-
-	public void ApplyEngineForce(float delta)
-	{
-		float fixedDeltaTime = 1.0f / 60.0f;
-		velocitysUp = Vector2.Up.Dot(cb.Velocity);
-		if (velocitysUp > maxSpeed && accelInput > 0)
-		{
-			return;
-		}
-
-		if (velocitysUp < -maxSpeed * 0.5f && accelInput < 0)
-		{
-			return;
-		}
-
-		if (accelInput == 0)
-		{
-			rb.AngularDamp = Mathf.Lerp(rb.AngularDamp, 3.0f, fixedDeltaTime * 0.3f);
-		}
-		Vector2 engineForceVector = Vector2.Up * accelerationFactor;
-		rb.ApplyForce(engineForceVector);
-
-		Vector2 brakeForce = Vector2.Up * -accelerationFactor * breakInput;
-	}
-
-	public void SmoothBrake()
-	{
-		if (accelInput < 0)
-		{
-			if (accelerationFactor > minSpeed)
-			{
-				accelerationFactor = accelerationFactor - accelRatio;
-
-			}
-		}
-
-		if (1>speed && speed >0 && accelerationFactor >0 && accelInput <0 )
-		{
-
-			accelerationFactor = accelerationFactor - 180;
-
-
-		}
-
-		if (breakInput == 0 && accelInput > 0 && maxAccelFactor > accelerationFactor)
-		{
-
-			accelerationFactor += accelRatio;
-
-		}
-
-		if (accelInput == 0 && accelerationFactor > 0)
-		{
-			accelerationFactor -= 0.6f;
-		}
-		else
-		{
-			return;
-		}
-	}
-
-	public float Clamp01(float value)
-	{
-		if (value < 0)
-			return 0;
-		else if (value > 1)
-			return 1;
-		else
-			return value;
-	}
-	public void ApplySteering()
-	{
-		float minSpeedBeforeTurn = cb.Velocity.Length() / 8;
-		minSpeedBeforeTurn = Clamp01(minSpeedBeforeTurn);
-
-		rotationAngle = -steerInput * turnFactor * minSpeedBeforeTurn;
-		rb.Rotate(rb.Rotation + rotationAngle);
-	}
-
-	public void killOrtaVelocity()
-	{
-		Vector2 forwardVelocity = Transform.Y * (cb.Velocity.Dot(Transform.Y));
-		Vector2 rightVelocity = Transform.X * (cb.Velocity.Dot(Transform.X));
-		rb.LinearVelocity = forwardVelocity + rightVelocity * driftFactor;
-	}
-
-	public void setInputVector()
-	{
-		steerInput = Input.GetAxis("A", "D");
-		GD.Print(steerInput);
-		accelInput = Input.GetAxis("S", "W");
-		GD.Print(accelInput);
-	}
 }
