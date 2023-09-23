@@ -7,6 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 [System.Serializable]
 public class SaveManager
 {
+    // this code currently does ABSOLUTELY NOTHING, I DONT EVEN KNOW IF IT WORKS DO NOT USE IT
     public static void SavePlayer(CarController car)
     {
         BinaryFormatter formatter = new BinaryFormatter();
